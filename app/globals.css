@@ -1,26 +1,77 @@
 @import "tailwindcss";
 
+/* =============================================
+   TRIVIAL RETRO — Estilos globales
+   ============================================= */
+
+/* Reset modo oscuro — la app es siempre clara */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #FDFAF0;
+  color: #2D2D2D;
+}
+
+/* =============================================
+   Animaciones CSS personalizadas
+   ============================================= */
+
+/* Deslizamiento para modales */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Parpadeo verde para respuesta correcta */
+@keyframes pulseGreen {
+  0%, 100% {
+    box-shadow: none;
+  }
+  50% {
+    box-shadow: 0 0 0 4px #4A9E78;
+  }
+}
+
+/* Sacudida roja para respuesta incorrecta */
+@keyframes shakeRed {
+  0%, 100% { transform: translateX(0); }
+  10%       { transform: translateX(-8px); }
+  30%       { transform: translateX(8px); }
+  50%       { transform: translateX(-6px); }
+  70%       { transform: translateX(6px); }
+  90%       { transform: translateX(-2px); }
+}
+
+/* =============================================
+   Estilos de scrollbar retro
+   ============================================= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FDFAF0;
+  border-left: 2px solid #2D2D2D;
+}
+::-webkit-scrollbar-thumb {
+  background: #A8C8E8;
+  border: 2px solid #2D2D2D;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8FB5D8;
+}
+
+/* =============================================
+   Selección de texto
+   ============================================= */
+::selection {
+  background: #A8C8E8;
+  color: #2D2D2D;
 }
