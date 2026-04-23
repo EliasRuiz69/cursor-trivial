@@ -25,6 +25,11 @@ SUPABASE_SERVICE_ROLE_KEY=
 NEXTAUTH_SECRET=
 NEXTAUTH_URL=http://localhost:3000
 WIKIPEDIA_API_BASE=https://es.wikipedia.org/api/rest_v1  # optional, has default
+EMAIL_SMTP_HOST=
+EMAIL_SMTP_PORT=587
+EMAIL_SMTP_USER=
+EMAIL_SMTP_PASS=
+EMAIL_FROM=Trivial Retro <noreply@tudominio.com>
 ```
 
 ## Architecture
@@ -34,7 +39,7 @@ WIKIPEDIA_API_BASE=https://es.wikipedia.org/api/rest_v1  # optional, has default
 ### Routing
 
 - `/` — redirects to `/login` or `/welcome` based on session
-- `(auth)` route group: `/login`, `/register` — public, no session required
+- `(auth)` route group: `/login`, `/register`, `/forgot-password`, `/reset-password` — public, no session required
 - `(game)` route group: `/welcome`, `/play` — require authentication, redirect to `/login` if not authenticated
 
 ### Authentication
@@ -55,12 +60,23 @@ Two clients in `lib/supabase.ts`:
 
 **`score_history`**: `id`, `player_id` (FK → player_profiles.id), `tema`, `preguntas_realizadas`, `aciertos`, `fallos`, `updated_at`. Unique constraint on `(player_id, tema)`.
 
+**`password_reset_tokens`**: `id` (uuid), `player_id` (FK → player_profiles.id), `token` (unique hex string), `expires_at` (30 min TTL), `used_at` (null until consumed), `created_at`. Index on `token`.
+
+### Password Reset Flow
+
+1. `POST /api/auth/forgot-password` — looks up the email in `player_profiles`, generates a `crypto.randomBytes(32).toString('hex')` token, inserts into `password_reset_tokens`, and calls `lib/email.ts` to send the reset link. Always returns `{ ok: true }` regardless of whether the email exists (prevents enumeration).
+2. `POST /api/auth/reset-password` — validates the token (exists, not `used_at`, not expired), hashes the new password with bcrypt (12 rounds), updates `player_profiles.password_hash`, then sets `used_at` to invalidate the token.
+
+Email is sent via nodemailer SMTP (`lib/email.ts`). Configure with `EMAIL_SMTP_*` env vars.
+
 ### API Routes
 
 | Route | Methods | Purpose |
 |---|---|---|
 | `/api/auth/[...nextauth]` | GET, POST | NextAuth handler |
 | `/api/auth/register` | POST | Create new player |
+| `/api/auth/forgot-password` | POST | Generate reset token and send email |
+| `/api/auth/reset-password` | POST | Validate token and update password |
 | `/api/questions` | GET | Fetch a question for a topic |
 | `/api/questions` | POST | Validate player's answer |
 | `/api/player` | GET | Fetch profile + score history |

@@ -134,6 +134,16 @@ export default function LoginPage() {
             />
           </div>
 
+          {/* Recuperar contraseña */}
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="font-['Courier_Prime',_monospace] text-xs text-[#555] hover:text-[#5A8AB8] underline"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
+
           {/* Error */}
           {error && (
             <p className="
